@@ -1,0 +1,15 @@
+.ipynb_checkpoints
+*/.ipynb_checkpoints/*
+
+/.quarto/
+/_manuscript
+
+/data/
+
+/agujournal2019.cls
+/trackchanges.sty
+.Rproj.user
+.Rhistory
+.Rdata
+.httr-oauth
+.DS_Store

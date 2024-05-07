@@ -1,0 +1,816 @@
+---
+title: "Script B: Data analysis and results"
+format: html
+---
+## Libraries
+
+```{r libraries}
+#| echo: false
+#| warning: false
+#| error: false
+#| message: false
+library(osfr)
+library(knitr)
+library(here)
+library(tidyverse)
+library(gtExtras)
+library(rstatix)
+library(emmeans)
+library(vcmeta)
+```
+
+## Materials
+
+```{r}
+#| echo: false
+#| warning: false
+#| error: false
+#| label: tbl-words
+#| tbl-cap: Descriptive statistics of the word items used in the study.
+#| fig-subcap: 
+#|   - "Experiment 1."
+#|   - "Experiment 2."
+
+stimuli <- read.csv('../materials/affix-priming_stimuli.csv')
+
+stimuli %>% 
+  filter(condition != 'nw-w_foil', experiment == 'one') %>%
+  group_by(grouping, condition) %>%
+  summarise(N = n(),
+            minLogFreq= min(Log_Freq_HAL, na.rm = T), maxLogFreq=max(Log_Freq_HAL, na.rm = T),
+            meanLogFreq = mean(Log_Freq_HAL, na.rm = T), sdLogFreq = sd(Log_Freq_HAL, na.rm = T),
+            minLength = min(Length, na.rm = T), maxLength = max(Length, na.rm = T),
+            meanLength = mean(Length, na.rm = T), sdLength=sd(Length, na.rm = T)
+            ) %>% 
+  mutate_if(is.numeric, round, 2) %>% 
+  mutate(grouping = ifelse(grouping=="one", md("*group 1A*"), md("*group 1B*"))) %>%
+  gt(groupname_col = "grouping", process_md = T) %>%
+  tab_spanner(
+    label = md("**log HAL**"), 
+    columns = c(minLogFreq:sdLogFreq)
+  ) %>%
+  tab_spanner(
+    label = md("**orth. length**"), 
+    columns = c(minLength:sdLength)
+  ) %>%
+  cols_label(starts_with("min") ~ "min", 
+             starts_with("max") ~ "max", 
+             starts_with("mean") ~ "mean", 
+             starts_with("sd") ~ "SD")
+
+stimuli %>% 
+  filter(condition != 'nw-w_foil', experiment == 'two') %>%
+  group_by(grouping, condition) %>%
+  summarise(N = n(),
+            minLogFreq= min(Log_Freq_HAL, na.rm = T), maxLogFreq=max(Log_Freq_HAL, na.rm = T),
+            meanLogFreq = mean(Log_Freq_HAL, na.rm = T), sdLogFreq = sd(Log_Freq_HAL, na.rm = T),
+            minLength = min(Length, na.rm = T), maxLength = max(Length, na.rm = T),
+            meanLength = mean(Length, na.rm = T), sdLength=sd(Length, na.rm = T)
+            ) %>% 
+  mutate_if(is.numeric, round, 2) %>% 
+  mutate(grouping = ifelse(grouping=="stem-standard", md("*group 2A*"), md("*group 2B*"))) %>%
+  mutate(condition = ifelse(condition=="semantic-2", "semantic", condition)) %>%
+  gt(groupname_col = "grouping", process_md = T) %>%
+  tab_spanner(
+    label = md("**log HAL**"), 
+    columns = c(minLogFreq:sdLogFreq)
+  ) %>%
+  tab_spanner(
+    label = md("**orth. length**"), 
+    columns = c(minLength:sdLength)
+  ) %>%
+  cols_label(starts_with("min") ~ "min", 
+             starts_with("max") ~ "max", 
+             starts_with("mean") ~ "mean", 
+             starts_with("sd") ~ "SD")
+  
+```
+
+```{r open dataset experiment 1}
+#| echo: false
+# load the raw data dataframe
+
+# load the raw data dataframe
+data_folder <- "data"
+rawdata_filename <- "affix-priming_raw_data.csv"
+
+## 02. check if the rawdata file exists. if not, download it from OSF.
+#if (!file.exists(here(data_folder, rawdata_filename))) {
+#  osf_retrieve_file("ej8dh") |> 
+#    osf_download(path = here(data_folder),
+#                 conflicts = "overwrite") 
+#}
+
+## 03. read the data into R.
+rawdata <- here(data_folder, rawdata_filename) |>
+  read.csv(na = c("", "NA")) %>%
+  mutate(primeTime = primeDuration - maskDuration) # calculating the actual SOA
+
+exp_info <- list()
+exp_info$intended_prime_duration <- 33
+exp_info$prime_dur_lb <- 25
+exp_info$prime_dur_ub <- 60
+exp_info$rt_lb <- 200
+exp_info$rt_ub <- 1800
+exp_info$n_recruited <- rawdata$Rec_Session_Id |>
+  unique() |>
+  length()
+
+exp_rawdata <- rawdata %>%
+  filter(!is.na(TimeMeasure_Mean) & !is.na(TimeMeasure_Std) & !is.na(primeDuration) & !is.na(responseError)) %>%
+  filter(!condition_rec %in% c("warmup", "nw-w_foils", "w-nw_foils"))
+            
+exp_info$summary <- with(
+  transform(exp_rawdata,
+    RT_inrange = ifelse(RT >= exp_info$rt_lb & RT <= exp_info$rt_ub, 1, 0),
+    Prime_inrange = ifelse((primeDuration - maskDuration) >= exp_info$prime_dur_lb &
+                             (primeDuration - maskDuration) <= exp_info$prime_dur_ub, 1, 0)),
+  {
+    data.frame(aggregate(Start_Time_Local ~ Rec_Session_Id + Crowdsourcing_SubjId, data=exp_rawdata, unique),
+               aggregate(End_Time_Local ~ Rec_Session_Id  + Crowdsourcing_SubjId, data=exp_rawdata, unique),
+               aggregate(cbind(experiment, list, SelectedGender, SelectedAge, TimeMeasure_Mean, TimeMeasure_Std) ~ Rec_Session_Id  + Crowdsourcing_SubjId, data=exp_rawdata, unique),
+               aggregate(cbind(responseError, RT_inrange, Prime_inrange) ~ Rec_Session_Id  + Crowdsourcing_SubjId, data=exp_rawdata, mean)
+    )
+  }
+)
+
+exp_info$summary <- exp_info$summary[, -grep("Rec_Session_Id.|Crowdsourcing_SubjId.", colnames(exp_info$summary))] # remove all extra aggregating columns (subj ID)
+
+exp_info$summary$Duration <- interval(ymd_hms(exp_info$summary$Start_Time_Local), 
+                                             ymd_hms(exp_info$summary$End_Time_Local)) |>
+                                      lapply(function(interval_value) {interval_value/dminutes(1)}) |> 
+                                           unlist()
+```
+
+### Step 1: subject and item performance 
+
+```{r}
+#| label: exp_performance
+#| message: false
+#| error: false
+#| warning: false
+
+exp_step1_goodsubj <- exp_info$summary |>
+  subset(responseError <= .3) 
+
+exp_step1_subj_remain <- exp_step1_goodsubj |> nrow()
+
+exp_step1_item.err <- exp_rawdata %>% group_by(experiment, condition_rec, target_rec) %>%
+  summarise(word.percent=mean(responseError)*100) %>% 
+  filter(word.percent > 30)
+
+exp_subj_filter_1 <- exp_step1_goodsubj$Rec_Session_Id
+exp_item_filter_1 <- exp_step1_item.err$target_rec
+
+exp_data_step1 <- exp_rawdata |>
+  subset(Rec_Session_Id %in% exp_subj_filter_1 & 
+         !target_rec %in% exp_item_filter_1)
+```
+
+### Step 2: prime durations
+
+```{r}
+#| label: exp_prime-durations
+#| message: false
+#| warning: false
+#| error: false
+  
+exp_summary.primeTime <- exp_rawdata %>% 
+  summarise(meanPrimeTime = round(mean(primeTime), 2), 
+            sdPrimeTime = round(sd(primeTime), 2))
+
+exp_primeTimeRangeSummary <- exp_rawdata %>% 
+  group_by(primeTime) %>%
+  mutate(range = ifelse(primeTime < exp_info$prime_dur_lb, "below", 
+                        ifelse(primeTime > exp_info$prime_dur_ub, "above",
+                               "in range"))) %>% 
+  group_by(range) %>% tally() %>% ungroup() %>%
+  mutate(range.percent = round((n*100)/nrow(exp_rawdata),2))
+
+exp_data_step2 <- exp_data_step1  |>
+  subset(primeTime >= exp_info$prime_dur_lb & primeTime <= exp_info$prime_dur_ub)
+
+exp_step2_subj_remain <- exp_data_step2$Rec_Session_Id |>
+  unique() |>
+  length()
+
+exp_step2_trials_remain <- nrow(exp_data_step2)
+
+```
+
+### Step 3: RT distribution
+
+```{r}
+#| label: exp_RT-outliers
+#| message: false
+#| error: false
+#| warning: false
+
+# RT outliers 
+exp_data_step3 <- exp_data_step2 |> 
+  subset(RT >= exp_info$rt_lb & RT <= exp_info$rt_ub)
+
+exp_step3_subj_remain <- exp_data_step3$Rec_Session_Id |>
+  unique() |>
+  length()
+
+exp_step3_trials_remain <- nrow(exp_data_step3)
+
+# error trial removal
+
+exp_data_step3b <- exp_data_step3  |>
+  subset(responseError == 0)
+
+exp_step3b_subj_remain <- exp_data_step3b$Rec_Session_Id |>
+  unique() |>
+  length()
+
+exp_step3b_trials_remain <- nrow(exp_data_step3b)
+
+# remove subjects with less than 12 trials in at least one condition*primetype combination (half of the total number of items per combination)
+rt_data_labels <- c("Rec_Session_Id", "condition_rec", "primetype_rec", "RT")
+
+exp_subj_filter_2 <- exp_data_step3b[, rt_data_labels] |>
+  aggregate(RT ~ ., FUN = length, drop = FALSE) |>
+  subset(RT < 6, select = Rec_Session_Id) |>
+  unique() |>
+  unlist()
+
+exp_data_final <- exp_data_step3b |>
+  subset(!(Rec_Session_Id %in% exp_subj_filter_2))
+
+```
+
+## Results
+
+```{r}
+#| label: exp_results
+#| message: false
+#| error: false
+#| warning: false
+
+# error rates averages
+### N.B.: to calculate error rates, will have to apply the 12-trial removal procedure after the RT removal procedure and without removing the error trials
+exp_subj_filter_2_with.errors <- exp_data_step3[, rt_data_labels] |> #exp_data_step3 is the dataset after RT removal and before the error trial removal
+  aggregate(RT ~ ., FUN = length, drop = FALSE) |>
+  subset(RT < 6, select = Rec_Session_Id) |>
+  unique() |>
+  unlist()
+
+exp_data_final_with.errors <- exp_data_step3 |>
+  subset(!(Rec_Session_Id %in% exp_subj_filter_2))
+
+exp_error.rates <- exp_data_final_with.errors %>%
+  mutate(primetype_rec = factor(primetype_rec, levels=c("unrelated", "related")),
+         condition_rec = as.factor(condition_rec)) %>%
+  group_by(experiment, condition_rec, primetype_rec, Rec_Session_Id) %>%
+  summarise(error.percent=mean(responseError)*100)
+
+# RT averages
+exp_rt.avg_subj <- exp_data_final %>% 
+  group_by(experiment, Rec_Session_Id, condition_rec, primetype_rec) %>%
+  summarise(meanRT = mean(RT))
+
+# we want to make sure that all subjects have RT averages for all conditions
+incomplete_cases <- exp_rt.avg_subj %>% pivot_wider(names_from=primetype_rec, values_from=meanRT) %>%
+  filter(is.na(related) | is.na(unrelated)) %>% pull(Rec_Session_Id)
+
+trial.count_out <- exp_rt.avg_subj %>% group_by(experiment) %>% count(Rec_Session_Id) %>%
+  filter((experiment == 1 & n != 16) | (experiment == 2 & n != 14)) %>% pull(Rec_Session_Id)
+
+exp_rt.avg_subj <- exp_rt.avg_subj %>%
+  filter(!Rec_Session_Id %in% c(incomplete_cases, trial.count_out))
+
+exp_final_subj_remain <- exp_rt.avg_subj %>%
+  group_by(experiment) %>%
+  distinct(Rec_Session_Id) %>% count() %>% pull()
+  
+exp_final_trials_remain <- nrow(exp_data_final)
+
+# correlations
+exp_rt_cor <- exp_data_final %>% 
+  filter(!Rec_Session_Id %in% incomplete_cases) %>%
+  group_by(experiment, Rec_Session_Id, condition_rec, primetype_rec) %>%
+  dplyr::summarise(meanRT=mean(RT)) %>%
+  dplyr::select(Rec_Session_Id, condition_rec, primetype_rec, meanRT) %>% 
+  pivot_wider(names_from='primetype_rec', values_from=c('meanRT')) %>%
+  group_by(condition_rec) %>%
+  summarise(cor=cor(unrelated, related, use="complete.obs"))
+
+# RT + error averages (by subject)
+exp_avgs_subj <- merge(exp_rt.avg_subj, exp_error.rates, by=c("experiment", "Rec_Session_Id", "condition_rec", "primetype_rec"))
+
+exp_mop.err_across <- exp_avgs_subj %>%
+  group_by(experiment, condition_rec, primetype_rec) %>%
+  summarise(gd.mean=mean(meanRT, na.rm=T), sd=sd(meanRT, na.rm=T), mean.error=mean(error.percent)) %>%
+  pivot_wider(id_cols=c("experiment", "condition_rec"), names_from=primetype_rec, values_from=c(gd.mean, sd, mean.error)) %>%
+  left_join(exp_rt_cor, by="condition_rec")
+
+#### ERROR PRIMING CALCULATIONS ####
+# we will just run stats for this, no numerical calculations (e.g., priming)
+
+### MAIN EFFECTS
+#### t-test
+exp_errors_stats_main <- exp_error.rates %>% 
+  group_by(experiment, condition_rec) %>%
+  t_test(error.percent ~ primetype_rec, paired=T)
+
+#### RT PRIMING CALCULATIONS ####
+
+### 2x2 ANOVA
+exp_mop_anova <- exp_rt.avg_subj %>%
+  mutate(Rec_Session_Id = factor(Rec_Session_Id)) %>%
+  group_by(experiment) %>%
+  anova_test(meanRT ~ condition_rec * primetype_rec + Error(Rec_Session_Id/(condition_rec * primetype_rec)))
+
+#lme4::glmer(RT ~ condition_rec * primetype_rec + (1|Rec_Session_Id), data=exp_data_final, family=Gamma)
+
+### MAIN EFFECTS
+#### by subject
+exp_mop_subj <- exp_rt.avg_subj %>% 
+  pivot_wider(names_from=primetype_rec, values_from=meanRT) %>%
+  mutate(priming = unrelated-related,
+         condition_rec = factor(condition_rec, 
+                                    levels = c("identity", "stem_pfx", "stem_prefix", "stem_sfx", "stem_suffix",
+                                               "prefixed", "suffixed",
+                                               "from_pfx", "from_sfx", "orthographic", 
+                                               "semantic", "nw-nw_id")))
+#### descriptive stats
+exp_gdavg_mop <- exp_mop_subj %>%
+  group_by(experiment, condition_rec) %>%
+  summarise(MOP = mean(priming, na.rm=T), se = sd(priming, na.rm=T)/sqrt(n()), 
+            ci=(qt(0.975, n()-1)*se),
+            sd=sd(priming, na.rm=T), ES=round(MOP/sd, 2))
+
+#### summary table
+exp_gdavg_mop_summary <- exp_gdavg_mop %>%
+  left_join(., exp_mop.err_across, by=c('condition_rec', "experiment")) %>%
+  mutate(across(c(2:5, 7:12), round), across(13, round, 2)) %>%
+  mutate(ci.lb = paste0("[", MOP-ci), ci.ub = paste0(MOP+ci, "]")) %>%
+  unite("CI", ci.lb:ci.ub, sep = " ") %>% dplyr::select(-ci, -se) %>% 
+  rename(factor = "condition_rec") %>%
+  relocate(gd.mean_related:cor, .before=MOP) %>% 
+  relocate(gd.mean_related, .after=gd.mean_unrelated) %>%
+  relocate(CI, .after=MOP)
+
+#### t-test
+exp_rt_stats_main <- exp_rt.avg_subj %>%
+  mutate(primetype_rec = fct_relevel(primetype_rec, "unrelated", "related")) %>%
+  group_by(experiment, condition_rec) %>%
+  t_test(meanRT ~ primetype_rec, paired=T) %>% dplyr::select(-3:-7) %>%
+  rename(factor = "condition_rec", t='statistic')
+
+### PAIRWISE COMPARISONS
+
+#### t-test
+comparisons.exp1 <- list(c("identity", "stem_prefix"), c("identity", "stem_suffix"),
+                    c("stem_prefix", "prefixed"), c("stem_suffix", "suffixed"), 
+                    c("prefixed", "orthographic"), c("suffixed", "orthographic"))
+comparisons.exp2 <- list(c("identity", "stem_pfx"), c("identity", "stem_sfx"))
+
+pairwise.exp1 <- exp_mop_subj %>% group_by(experiment) %>%
+  filter(experiment == 1) %>%
+  pairwise_t_test(priming ~ condition_rec, comparisons=comparisons.exp1, detailed=T, p.adjust.method = "bonferroni")
+
+pairwise.exp2 <- exp_mop_subj %>% group_by(experiment) %>%
+  filter(experiment == 2) %>%
+  pairwise_t_test(priming ~ condition_rec, comparisons=comparisons.exp2, detailed=T, p.adjust.method = "bonferroni")
+
+```
+
+### Stats summary
+
+```{r}
+#| message: false
+#| error: false
+#| warning: false
+#| label: tbl-statsResults
+#| tbl-cap: "Experiment 1. Summary of the word priming results. *Legend.* MOP: magnitude of priming."
+#| tbl-pos: 'h'
+
+exp_summary.results_mop <- merge(exp_gdavg_mop_summary, exp_rt_stats_main, by=c('experiment', 'factor'))
+
+exp_summary.results_mop %>%
+  relocate(c("sd_unrelated", "mean.error_unrelated"), .before=gd.mean_related) %>%
+  mutate(experiment=ifelse(experiment==1, "_experiment 1_", "_experiment 2_"),
+         factor = fct_relevel(factor, c("identity", "stem_prefix", "stem_suffix",
+                        "prefixed", "suffixed", "stem_pfx", "stem_sfx",
+                        "orthographic", "semantic", "nw-nw_id"))) %>%
+  group_by(experiment) %>% arrange(factor) %>%
+  gt(groupname_col="experiment", process_md = T) %>%
+  cols_label(
+    CI = "95% CI",
+    contains("mean") ~ "mean",
+    contains("sd") ~ "SD", 
+    contains("error") ~ "Error (%)"
+  ) %>%
+  tab_spanner(
+    label = "unrelated RT",
+    columns = c(3:5)
+  ) %>%
+  tab_spanner(
+    label = "repetition RT",
+    columns = c(6:8)
+  ) %>%
+  tab_spanner(
+    label = 'priming effects',
+    columns = c(10:13)
+  ) %>%
+  tab_spanner(
+    label = md("_t_-test"),
+    columns = c(14:16)
+  ) %>%
+  cols_label(
+    sd = md("SD~p~")
+  ) %>%
+  cols_label(
+    t = md("_t_"),
+    p = md("_p_"),
+  ) %>%
+   sub_missing(
+    missing_text = " "
+  )
+```
+
+#### Plotting
+
+```{r}
+
+exp_gdavg_mop %>%
+  mutate(condition_rec = factor(condition_rec, c("identity", "stem_prefix", "stem_suffix",
+                        "prefixed", "suffixed", "stem_pfx", "stem_sfx", "from_pfx", "from_sfx",
+                        "orthographic", "semantic", "nw-nw_id"))) %>%
+  ggplot(aes(x=condition_rec, y=MOP)) +
+  facet_grid(~ experiment, scales="free_x") +
+  geom_col() + geom_errorbar(aes(ymin=MOP-ci, ymax=MOP+ci), width=.2) +
+  geom_text(aes(x=condition_rec, y=-0.5, label=round(MOP)))
+
+```
+
+
+### Linear contrasts
+
+#### Experiment 1
+
+```{r}
+#| label: exp1 - linear contrasts (with emmeans)
+#| message: false
+#| error: false
+#| warning: false
+
+exp_mop_subj_exp1 <- exp_mop_subj %>%
+  filter(experiment==1) %>% droplevels()
+
+### CONTRASTS #####################
+#ID priming vs
+id_affixedStem_exp1 <- c(1, -1/2, -1/2, 0, 0, 0, 0, 0)
+
+# affixed stem priming vs
+affixedStem_affix_exp1 <- c(0, 1/2, 1/2, -1/2, -1/2, 0, 0, 0)
+prefixedStem_prefix_exp1 <- c(0, 1, 0, -1, 0, 0, 0, 0)
+suffixedStem_suffix_exp1 <- c(0, 0, 1, 0, -1, 0, 0, 0)
+affixedStem_semantic_exp1 <- c(0, 1/2, 1/2, 0, 0, 0, -1, 0)
+
+# ortho stem priming vs
+ortho_semantic_exp1 <- c(0, 0, 0, 0, 0, 1, -1, 0)
+ortho_affix_exp1 <- c(0, 0, 0, 1/2, 1/2, -1, 0, 0)
+####################################
+
+# model
+model_exp1 = exp_mop_subj_exp1 %>% lm(priming ~ condition_rec, data=.) # if we are not using the pipe, the estimates will be slightly different than the manual calculations
+marginal_exp1 = emmeans(model_exp1, ~ condition_rec)
+
+# contrast lists
+contrasts.list_exp1_emmeans = list("id vs affixed stem" = id_affixedStem_exp1, 
+                                   "affixed stem vs affix" = affixedStem_affix_exp1, 
+                                   "prefixed stem vs prefix" = prefixedStem_prefix_exp1,
+                                   "suffixed stem vs suffix" = suffixedStem_suffix_exp1, 
+                                   "affixed stem vs semantic" = affixedStem_semantic_exp1,
+                                   "orthographic vs semantic" = ortho_semantic_exp1,
+                                   "orthographic vs affix" = ortho_affix_exp1)
+# linear contrasts
+contrasts_emmeans_exp1 = contrast(marginal_exp1, contrasts.list_exp1_emmeans, adjust="sidak")
+
+### checking estimates
+
+estimate_id_exp1 = exp_gdavg_mop %>% filter(condition_rec=='identity', experiment==1) %>% pull(MOP)
+
+estimate_affixedStem_exp1 = exp_gdavg_mop %>% filter(condition_rec%in%c('stem_prefix', 'stem_suffix'), experiment==1) %>% 
+  summarise(mean=mean(MOP)) %>% pull(mean)
+
+estimate_affix_exp1 = exp_gdavg_mop %>% filter(condition_rec%in%c('prefixed', 'suffixed'), experiment==1) %>% 
+  summarise(mean=mean(MOP)) %>% pull(mean)
+estimate_prefix_exp1 = exp_gdavg_mop %>% filter(condition_rec=='prefixed', experiment==1) %>% pull(MOP)
+estimate_suffix_exp1 = exp_gdavg_mop %>% filter(condition_rec=='suffixed', experiment==1) %>% pull(MOP)
+
+estimate_prefixedStem_exp1 = exp_gdavg_mop %>% filter(condition_rec=='stem_prefix', experiment==1) %>% pull(MOP)
+estimate_suffixedStem_exp1 = exp_gdavg_mop %>% filter(condition_rec=='stem_suffix', experiment==1) %>% pull(MOP)
+
+estimate_ortho_exp1 = exp_gdavg_mop %>% filter(condition_rec=='orthographic', experiment==1) %>% pull(MOP)
+estimate_semantic_exp1 = exp_gdavg_mop %>% filter(condition_rec=='semantic', experiment==1) %>% pull(MOP)
+
+# contrasts by hand
+contrast.estimates_exp1 <- data.frame(term1=c(estimate_id_exp1, estimate_affixedStem_exp1, 
+                                         estimate_prefixedStem_exp1, estimate_suffixedStem_exp1, 
+                                         estimate_affixedStem_exp1, estimate_ortho_exp1, estimate_ortho_exp1), 
+                                 term2=c(estimate_affixedStem_exp1, estimate_affix_exp1, 
+                                         estimate_prefix_exp1, estimate_suffix_exp1, 
+                                         estimate_semantic_exp1, estimate_semantic_exp1, estimate_affix_exp1))
+
+contrast.estimates_exp1 <- contrast.estimates_exp1 %>% mutate(diff.check= term1-term2)
+
+contrasts.summary_exp1 <- cbind(contrast.estimates_exp1, contrasts_emmeans_exp1) %>%
+  relocate(contrast, .before=term1)
+
+contrasts.summary_exp1 %>% 
+  gt()
+
+```
+
+#### Experiment 2
+
+```{r}
+#| label: exp2 - linear contrasts (with emmeans)\
+#| message: false
+#| error: false
+#| warning: false
+
+exp_mop_subj_exp2 <- exp_mop_subj %>%
+  filter(experiment==2) %>% droplevels()
+
+### CONTRASTS #####################
+# ID priming vs
+id_stem_exp2 <- c(1, -1/2, -1/2, 0, 0, 0, 0)
+id_semantic_exp2 <- c(1, 0, 0, 0, 0, -1, 0)
+
+stem_semantic_exp2 <- c(0, 1/2, 1/2, 0, 0, -1, 0) # stem priming vs
+
+from_semantic_exp2 <- c(0, 0, 0, 1/2, 1/2, -1, 0)# "from" condition vs
+####################################
+
+model_exp2 = exp_mop_subj_exp2 %>%
+  lm(priming ~ condition_rec, data=.)
+
+marginal_exp2 = emmeans(model_exp2, ~ condition_rec)
+contrasts.list_exp2_emmeans = list("id vs stem" = id_stem_exp2, 
+                                   "id vs semantic" = id_semantic_exp2,
+                                   "stem vs semantic" = stem_semantic_exp2,
+                                   "from vs semantic" = from_semantic_exp2)
+
+contrasts_emmeans_exp2 = contrast(marginal_exp2, contrasts.list_exp2_emmeans, adjust="sidak")
+
+### checking estimates
+
+estimate_id_exp2 = exp_gdavg_mop %>% filter(condition_rec=='identity', experiment==2) %>% pull(MOP)
+
+estimate_stem_exp2 = exp_gdavg_mop %>% filter(condition_rec%in%c('stem_pfx', 'stem_sfx'), experiment==2) %>% 
+  summarise(mean=mean(MOP)) %>% pull(mean)
+
+estimate_semantic_exp2 = exp_gdavg_mop %>% filter(condition_rec=='semantic', experiment==2) %>% pull(MOP)
+
+estimate_from_exp2 = exp_gdavg_mop %>% filter(condition_rec%in%c('from_pfx', 'from_sfx'), experiment==2) %>% 
+  summarise(mean=mean(MOP)) %>% pull(mean)
+
+# contrasts by hand
+contrast.estimates_exp2 <- data.frame(term1=c(estimate_id_exp2, estimate_id_exp2,
+                                              estimate_stem_exp2, estimate_from_exp2), 
+                                 term2=c(estimate_stem_exp2, estimate_semantic_exp2, 
+                                         estimate_semantic_exp2, estimate_semantic_exp2))
+contrast.estimates_exp2 <- contrast.estimates_exp2 %>% mutate(diff.check= term1-term2)
+
+contrasts.summary_exp2 <- cbind(contrast.estimates_exp2, contrasts_emmeans_exp2) %>%
+  relocate(contrast, .before=term1)
+
+contrasts.summary_exp2 %>% 
+  gt()
+
+```
+
+#### Meta-analysis
+
+```{r}
+#| label: meta-analysis_summary.table
+#| tbl-cap: "Experiment 1. Summary of the word priming results (repeated for convenience). *Legend.* MOP: magnitude of priming."
+#| message: false
+#| error: false
+#| warning: false
+
+exp_summary.results_mop %>%
+  relocate(c("sd_unrelated", "mean.error_unrelated"), .before=gd.mean_related) %>%
+  mutate(experiment=ifelse(experiment==1, "_experiment 1_", "_experiment 2_"),
+         factor = fct_relevel(factor, c("identity", "stem_prefix", "stem_suffix",
+                        "prefixed", "suffixed", "stem_pfx", "stem_sfx",
+                        "orthographic", "semantic", "nw-nw_id"))) %>%
+  group_by(experiment) %>% arrange(factor) %>%
+  gt(groupname_col="experiment", process_md = T) %>%
+  cols_label(
+    CI = "95% CI",
+    contains("mean") ~ "mean",
+    contains("sd") ~ "SD", 
+    contains("error") ~ "Error (%)"
+  ) %>%
+  tab_spanner(
+    label = "unrelated RT",
+    columns = c(3:5)
+  ) %>%
+  tab_spanner(
+    label = "repetition RT",
+    columns = c(6:8)
+  ) %>%
+  tab_spanner(
+    label = 'priming effects',
+    columns = c(10:13)
+  ) %>%
+  tab_spanner(
+    label = md("_t_-test"),
+    columns = c(14:16)
+  ) %>%
+  cols_label(
+    sd = md("SD~p~")
+  ) %>%
+  cols_label(
+    t = md("_t_"),
+    p = md("_p_"),
+  ) %>%
+   sub_missing(
+    missing_text = " "
+  )
+
+```
+
+#### Cross-experiments averages
+
+```{r}
+#| label: meta-analysis_averages
+
+exp_mop.err_across_id <- exp_mop.err_across %>% filter(condition_rec=='identity')
+
+# identity priming
+meta.ave_across_id <- meta.ave.mean.ps(alpha = .05, 
+                                     m1 = exp_mop.err_across_id$gd.mean_unrelated, 
+                                     m2 = exp_mop.err_across_id$gd.mean_related,
+                                     sd1 = exp_mop.err_across_id$sd_unrelated,
+                                     sd2 = exp_mop.err_across_id$sd_related,
+                                     cor = exp_mop.err_across_id$cor,
+                                     n = exp_final_subj_remain)
+
+# stem priming 
+exp_mop.err_across_stems <- exp_mop.err_across %>% filter(str_detect(condition_rec, "stem"))
+
+meta.ave_across_stems <-meta.ave.mean.ps(alpha = .05, 
+                                       m1 = exp_mop.err_across_stems$gd.mean_unrelated, 
+                                       m2 = exp_mop.err_across_stems$gd.mean_related,
+                                       sd1 = exp_mop.err_across_stems$sd_unrelated,
+                                       sd2 = exp_mop.err_across_stems$sd_related,
+                                       cor = exp_mop.err_across_stems$cor,
+                                       n = exp_final_subj_remain)
+
+# semantic priming (this also include the effects of the "from" condition)
+exp_mop.err_across_semantic <- exp_mop.err_across %>% filter(condition_rec %in% c('semantic', "from_pfx", "from_sfx"))
+
+meta.ave_across_semantic <- meta.ave.mean.ps(alpha = .05, 
+                                          m1 = exp_mop.err_across_semantic$gd.mean_unrelated, 
+                                          m2 = exp_mop.err_across_semantic$gd.mean_related,
+                                          sd1 = exp_mop.err_across_semantic$sd_unrelated,
+                                          sd2 = exp_mop.err_across_semantic$sd_related,
+                                          cor = exp_mop.err_across_semantic$cor,
+                                          n = exp_final_subj_remain)
+
+## AVERAGES SUMMARY MATRIX
+
+priming_type <- as.matrix(c("_identity priming_", "_stem priming_", "_semantic priming_"))
+
+meta.ave_summary <- data.frame(priming_type = rep(priming_type, c(3, 5, 5)),
+                               rbind(meta.ave_across_id,
+                                     meta.ave_across_stems, 
+                                     meta.ave_across_semantic)) %>% 
+                        rownames_to_column(var='study') %>%
+                        mutate(study = c("average", "experiment 1", "experiment2",
+                                "average", "experiment 1", "experiment 1", "experiment 2", "experiment 2",
+                                "average", "experiment 1", "experiment 2", "experiment 2", "experiment 2"),
+                               condition = c("", "identity", "identity",
+                                             "", "prefixed stem", "suffixed stem", 
+                                                 "bare stem (from prefixed prime)", "bare stem (from suffixed prime)",
+                                             "", "semantic", "semantic", 
+                                                 "from prefix condition (exp 1)", "from suffix condition (exp 1)")) %>%
+                        relocate(condition, .after=priming_type) %>% rename(`priming type` = priming_type) 
+                        
+meta.ave_summary %>% 
+  gt(groupname_col="priming type", process_md =T) %>%
+  gt_highlight_rows(
+     rows = study == 'average',
+     fill = "lightgrey",
+     bold_target_only = TRUE
+   )
+
+```
+
+#### Cross-experiments contrasts
+
+```{r}
+
+meta.ave_summary.sub <- meta.ave_summary %>% filter(study == 'average') %>% select(-condition)
+
+affix.priming.mean <- exp_gdavg_mop %>%
+  filter(condition_rec %in% (c('prefixed', 'suffixed'))) %>% 
+  summarise(mean=mean(MOP)) %>% pull()
+
+orthographic.priming.mean <- exp_gdavg_mop %>%
+  filter(condition_rec == 'orthographic') %>% pull(MOP)
+
+term1 <- c(meta.ave_summary.sub$Estimate[meta.ave_summary.sub$`priming type`=='_identity priming_'],
+           meta.ave_summary.sub$Estimate[meta.ave_summary.sub$`priming type`=='_identity priming_'],
+           affix.priming.mean,
+           orthographic.priming.mean)
+
+term2 = c(meta.ave_summary.sub$Estimate[meta.ave_summary.sub$`priming type`=='_stem priming_'],
+          meta.ave_summary.sub$Estimate[meta.ave_summary.sub$`priming type`=='_semantic priming_'],
+          meta.ave_summary.sub$Estimate[meta.ave_summary.sub$`priming type`=='_stem priming_'],
+          meta.ave_summary.sub$Estimate[meta.ave_summary.sub$`priming type`=='_semantic priming_'])
+
+manual.diff.estimates <- data.frame(term1, term2) %>% mutate(diff = term1 - term2)
+
+```
+
+```{r}
+# just adding the sample size for each condition (depending on the experiment)
+exp_mop.err_across_with.n <- exp_mop.err_across %>%
+  mutate(n = ifelse(experiment == 1, exp_final_subj_remain[1], exp_final_subj_remain[2]))
+
+# identity vs stem
+exp_mop.err_across_id.vs.stem <- exp_mop.err_across_with.n %>% 
+  filter(condition_rec == 'identity' | str_detect(condition_rec, "stem")) %>%
+  arrange(condition_rec)
+
+meta.lc_across_id.vs.stem <- meta.lc.mean.ps(alpha = .05, 
+                                            m1 = exp_mop.err_across_id.vs.stem$gd.mean_unrelated, 
+                                            m2 = exp_mop.err_across_id.vs.stem$gd.mean_related,
+                                            sd1 = exp_mop.err_across_id.vs.stem$sd_unrelated,
+                                            sd2 = exp_mop.err_across_id.vs.stem$sd_related,
+                                            cor = exp_mop.err_across_id.vs.stem$cor,
+                                            n = exp_mop.err_across_id.vs.stem$n,
+                                            v = c(1/2, 1/2, -1/4, -1/4, -1/4, -1/4))
+
+# identity vs semantic
+exp_mop.err_across_id.vs.semantic <- exp_mop.err_across_with.n %>% 
+  filter(condition_rec %in% c('identity', "semantic", "from_pfx", "from_sfx")) %>%
+  arrange(condition_rec)
+
+meta.lc_across_id.vs.semantic <- meta.lc.mean.ps(alpha = .05, 
+                                       m1 = exp_mop.err_across_id.vs.semantic$gd.mean_unrelated, 
+                                       m2 = exp_mop.err_across_id.vs.semantic$gd.mean_related,
+                                       sd1 = exp_mop.err_across_id.vs.semantic$sd_unrelated,
+                                       sd2 = exp_mop.err_across_id.vs.semantic$sd_related,
+                                       cor = exp_mop.err_across_id.vs.semantic$cor,
+                                       n = exp_mop.err_across_id.vs.semantic$n,
+                                       v = c(-1/4, -1/4, 1/2, 1/2, -1/4, -1/4))
+
+# orthographic vs semantic
+exp_mop.err_across_ortho.vs.semantic <- exp_mop.err_across_with.n %>% 
+  filter(condition_rec %in% c('orthographic', "semantic", "from_pfx", "from_sfx")) %>%
+  arrange(condition_rec) %>% droplevels()
+
+meta.lc_across_ortho.vs.semantic <- meta.lc.mean.ps(alpha = .05, 
+                                          m1 = exp_mop.err_across_ortho.vs.semantic$gd.mean_unrelated, 
+                                          m2 = exp_mop.err_across_ortho.vs.semantic$gd.mean_related,
+                                          sd1 = exp_mop.err_across_ortho.vs.semantic$sd_unrelated,
+                                          sd2 = exp_mop.err_across_ortho.vs.semantic$sd_related,
+                                          cor = exp_mop.err_across_ortho.vs.semantic$cor,
+                                          n = exp_mop.err_across_ortho.vs.semantic$n,
+                                          v = c(-1/4, -1/4, 1, -1/4, -1/4))
+
+# affix vs stem
+exp_mop.err_across_affix.vs.stem <- exp_mop.err_across_with.n %>% 
+  filter(condition_rec %in% c('prefixed', 'suffixed') | str_detect(condition_rec, "stem")) %>% 
+  arrange(condition_rec)
+
+meta.lc_across_affix.vs.stem <-meta.lc.mean.ps(alpha = .05, 
+                                            m1 = exp_mop.err_across_affix.vs.stem$gd.mean_unrelated, 
+                                            m2 = exp_mop.err_across_affix.vs.stem$gd.mean_related,
+                                            sd1 = exp_mop.err_across_affix.vs.stem$sd_unrelated,
+                                            sd2 = exp_mop.err_across_affix.vs.stem$sd_related,
+                                            cor = exp_mop.err_across_affix.vs.stem$cor,
+                                            n = exp_mop.err_across_affix.vs.stem$n,
+                                            v = c(1/2, -1/4, -1/4, -1/4, -1/4, 1/2))
+
+## SUMMARY MATRIX
+
+lc <- as.matrix(c("identity vs stem", 
+                  "identity vs semantic", 
+                  "affix vs stem",
+                  "orthographic vs semantic"))
+
+meta.lc_summary <- data.frame(lc,
+                              rbind(meta.lc_across_id.vs.stem, 
+                                    meta.lc_across_id.vs.semantic, 
+                                    meta.lc_across_affix.vs.stem, 
+                                    meta.lc_across_ortho.vs.semantic), row.names = 1) %>% 
+  rownames_to_column(var='contrasts')
+
+meta.lc_summary <- cbind(meta.lc_summary, manual.diff.estimates) %>%
+  relocate(all_of(c("term1", "term2", "diff")), .before = Estimate)
+
+meta.lc_summary %>% gt()
+
+```
+
