@@ -52,7 +52,6 @@ library(gtExtras)
 library(rstatix)
 library(lmerTest)
 library(here)
-
 ```
 
 While models of visual word recognition agree that morphologically complex words are decomposed into their morphological constituents in the process of lexical access, there is no consensus on the exact time course of this process [@Taft2004; @BaayenEtal1997], and the set of linguistic properties it is sensitive to [@RastleEtal2000; @FeldmanEtal1999; @FeldmanEtal2004; @Petrosino2024]. Across languages, it has been reported that a monomorphemic word (called target) is consistently recognized faster when preceded by either (a) a morphologically related word (called prime: e.g., *driver-DRIVE*) even when the latter is masked (i.e., visually presented for such a short time, 40-60 ms, so that subjects do not consciously perceive it); or (b) a seemingly, but not actually morphologically related prime (morphologically “opaque” words; e.g., *brother-BROTH*, which does not mean “someone who corns”, even though it displays the _-er_ agentive suffix). Crucially, a similar facilitation fails to obtain when the prime is only orthographically similar to the target, with no possible morphological parse [e.g., *brothel-BROTH*, where _-el_ is not an extant English suffix\; @RastleEtal2004]. This pattern of results has been argued to support the procedure of _morphological decomposition_ proposed in @Taft1994's _affix stripping model_ occurring early in word processing and prior to lexical access (i.e., at least before accessing the meaning of the whole word), as it seems to rely on the "morpho-orthographic" shape of morphemes (that is, the phono-orthographic sequence of letter strings associated with a given morpheme, since *-er* triggers decomposition, but *-el* does not), and does not depend on semantic interpretation (since *-er* elicits decomposition even in morphologically opaque, monomorphemic words like *brother*). In this study, we particularly focus on corollary argument of the affix stripping model, stating that only stems are activated during decomposition, whereas affixes are just stripped off [@TaftForster1975; @Taft1981], which predicts that, _with everything else being equal_, the masked _affix_ priming effect size be weaker than the masked _stem_ priming effect size. The results reported in the literature suggest that this prediction may be correct. On the one hand, masked stem priming has been consistently reported across languages, even with different systems of word formation [e.g., Semitic languages\: @FrostEtal2001; @BoudelaaMarslen-Wilson2001]. On the other hand, masked affix priming provides less robust results across different languages, though comparatively understudied  [among others, English\: @CrepaldiEtal2016; @Petrosino2024; French\: @GiraudoGrainger2003; Italian\: @GiraudoDalMaso2016; Spanish\: @DominguezEtal2010, @DunabeitiaEtal2008; for a review, @AmentaCrepaldi2012]. However, while masked affix priming results seem to be less robust than masked stem priming, it is hard to ascertain whether they are really null, as the affix stripping model would predict, or just much significantly smaller than stem priming effects, and therefore harder to detect without the right sample size. A recent study from our lab [@PetrosinoEtal2023] aimed to directly compare masked stem and suffix priming, while recruiting a larger sample ($N_{exp1a}=161$; $N_{exp2}=400$) online, in line with the recent trends in the visual priming literature [among others, *PsychoJS*\: @AngeleEtal2013; *Gorilla*: @Cayado2023; *Labvanced*: @PetrosinoEtal2023; @PetrosinoAlmeida2024]. The results showed that on the one hand, non-significant suffix priming effects were uniformly small and statistically, no matter whether shorter (33 ms) or longer (60 ms) prime durations were used (M~suffix = 2 ms); on the other hand, the stem priming effects were substantially larger and statistically significant, and varied as a function of the prime duration (M~stem_exp1 = 16 ms vs M~stem_exp2 = 31 ms), mirroring the dynamics of the identity condition (M~identity_exp1 = 25 ms vs M~identity_exp2 = 47 ms). These results seem to strongly support a differential nature of stems and affixes: at early stages of visual word processing, decomposition occurs on the basis of morpho-orthographic regularities, and eventually triggers lexical activation of the stem, thus leading to priming. However, suffixes do not seem to be activated at all – they are just “stripped off” of the stem, and do not appear to be used in lexical retrieval in the same way stems are, as the latter give rise to priming effects but the former do not. The present contribution builds on these results, and further delves into the two follow-up questions that were mentioned therein. First, we extend our investigation to prefix priming, and ask whether the location of the affix with respect to the stem impinges on decomposition and ultimately priming elicitation. Second, we acknowledge that the bulk of the literature of morphological priming is primarily based on English, a stem-based language where words may surface as phonologically identical to the underlying stems. This property of English is not very common cross-linguistically; in many languages (e.g., Romance languages) stems are instead always bound, in the sense that they never occur without at least one grammatical affix. Such an idiosyncratic property may ultimately hinder the more direct comparison between the affix and stem masked priming response, and therefore detection of potential differences between the two. The present study aims to address both issues, while ensure reproducibility and reliability of the results reported. To that end, we ran an extensive power analysis that allowed us to quantify the correct sample size to recruit to ensure acceptable power ($N=12,000$).
@@ -74,16 +73,7 @@ We preregistered the results of the goals, and the design and analysis plan of t
 
 ## Sample size rationale {#sec-methods-power}
 
-```{r power-analysis}
-#| execute: false
-#| label: fig-power
-#| fig-cap: Power simulations with a sample size of 1,250, for all combinations of standard deviation (sd), pairwise correlation (cor), and interaction effect size. The red line identifies the threshold of 80% power.
-#| output: false
-#| 
-
-```
-
-We ran an extensive power analysis based on four parameters: sample size, standard deviation, pairwise correlation between the related and unrelated conditions, and effect size. Out of the parameters aforementioned, only the sample size and the effect sizes are consistently reported in published studies, whereas the other two are very seldom reported, if ever. For this reason, our power analyses required testing a wide range combinations of these parameters. From several pilot online and in-lab experiments, we identified the range between 80 and 120 ms (with 10 ms increments) for the standard deviation, and between 0.7 and 0.9 (with 0.1 increments) for the correlation. As for the sample size, we selected range between 200 and 5,000 participants (with 150 unit increments). Finally, as for the effect size, we focused on the expected effect size of the masked affix priming response. All previous studies reported a null, or close-to-null raw effect ($\le 7~ms$), so we used the upper-bound limit as a single value in the simulations The four parameters aforementioned were used to simulate 10,000 datasets for each combination. For each dataset, we performed a dependent-samples *t*-test, and then calculated power as the average of the number of significant tests (i.e., with $p < \alpha$) obtained. The code used for the power simulations, along with the simulated datasets are available on OSF (<https://osf.io/r7d2q/>). We identified a sample size of 3,300 participants for each experiment as a feasible sample size that would allow us to reach an acceptable statistical power ($> 80%$) in most combinations of parameters. Given the known limitations in time accuracy and precision of the current online stimulus delivery programs currently available [@PetrosinoAlmeida2024], the target sample size was maxed out to 6,000 for each experiment, so to ensure the largest sample size possible.
+We ran an extensive power analysis based on four parameters: sample size, standard deviation, pairwise correlation between the related and unrelated conditions, and effect size. Out of the parameters aforementioned, only the sample size and the effect sizes are consistently reported in published studies, whereas the other two are very seldom reported, if ever. For this reason, our power analyses required testing a wide range combinations of these parameters. From several pilot online and in-lab experiments, we identified the range between 80 and 120 ms (with 10 ms increments) for the standard deviation, and between 0.7 and 0.9 (with 0.1 increments) for the correlation. As for the sample size, we selected range between 200 and 5,000 participants (with 150 unit increments). Finally, as for the effect size, we focused on the expected effect size of the masked affix priming response. All previous studies reported a null, or close-to-null raw effect ($\le 7~ms$), so we used the upper-bound limit as a single value in the simulations The four parameters aforementioned were used to simulate 10,000 datasets for each combination. For each dataset, we performed a dependent-samples *t*-test, and then calculated power as the average of the number of significant tests (i.e., with $p < \alpha$) obtained. The code used for the power simulations, along with the simulated datasets are available on OSF (<XXXXXXXX>). We identified a sample size of 3,300 participants for each experiment as a feasible sample size that would allow us to reach an acceptable statistical power ($> 80%$) in most combinations of parameters. Given the known limitations in time accuracy and precision of the current online stimulus delivery programs currently available [@PetrosinoAlmeida2024], the target sample size was maxed out to 6,000 for each experiment, so to ensure the largest sample size possible.
 
 ## Participants {#sec-methods-participants}
 
@@ -95,7 +85,7 @@ The masked priming procedure for both experiments relied on a lexical decision t
 
 ## Materials {#sec-methods-materials}
 
-The descriptive statistics of the word items used in both experiments are detailed in @tbl-words. A complete list of the word items used in both experiments is reported in the appendix at the end of the paper.
+The descriptive statistics of the word items used in both experiments are detailed in XXXXX. A complete list of the word items used in both experiments is reported in the appendix at the end of the paper.
 
 ### Experiment 1 {#sec-methods-materials-exp1}
 
@@ -104,71 +94,6 @@ Three hundred and thirty-six English words were selected from the English Lexico
 Word frequency [HAL\: @LundBurgess1996] and orthographic length could not be controlled across all seven conditions as a whole, so the seven conditions were split in two separate groups: group A consisted of the four morphological conditions and the identity condition; group B consisted of the orthographic and semantic conditions. In each groups, prime and target stimuli were matched as much as possible in word frequency (group 1A, primes: *F*(3,92)=2.08, $p=.11$; group A, targets: *F*(5,138)=1.36, $p=.25$; group B, primes: *F*(1,46)=0.31, $p=.58$; group 1B, targets: *F*(1,46)=0.76, $p=.39$) and length (group 1A, primes: *F*(3,92)=0.76, $p=.52$; group A, targets: *F*(5,138)=1.89, $p=.1$; group 1B, primes: *F*(1,46)=3.07, $p=.09$; group B, targets: *F*(1,46)=0.98, $p=.33$). For each condition, a set of twenty-four unrelated primes were also selected from the ELP database, and matched in HAL frequency and length with their respective related primes (*t*s < 1).
 
 Finally, a _nonword-word foil_ condition (*ovetarm-SPONGE*) consisted of unrelated non-word primes and word targets, and was meant to further reduce the proportion of related prime-target pairs in the experiment.
-
-```{r}
-#| echo: false
-#| warning: false
-#| error: false
-#| label: tbl-words
-#| tbl-cap: Descriptive statistics of the word items used in the study.
-#| fig-subcap: 
-#|   - "Experiment 1."
-#|   - "Experiment 2."
-
-stimuli <- read.csv('materials/affix-priming_stimuli.csv')
-
-stimuli %>% 
-  filter(condition != 'nw-w_foil', experiment == 'one') %>%
-  group_by(grouping, condition) %>%
-  summarise(N = n(),
-            minLogFreq= min(Log_Freq_HAL, na.rm = T), maxLogFreq=max(Log_Freq_HAL, na.rm = T),
-            meanLogFreq = mean(Log_Freq_HAL, na.rm = T), sdLogFreq = sd(Log_Freq_HAL, na.rm = T),
-            minLength = min(Length, na.rm = T), maxLength = max(Length, na.rm = T),
-            meanLength = mean(Length, na.rm = T), sdLength=sd(Length, na.rm = T)
-            ) %>% 
-  mutate_if(is.numeric, round, 2) %>% 
-  mutate(grouping = ifelse(grouping=="one", md("*group 1A*"), md("*group 1B*"))) %>%
-  gt(groupname_col = "grouping", process_md = T) %>%
-  tab_spanner(
-    label = md("**log HAL**"), 
-    columns = c(minLogFreq:sdLogFreq)
-  ) %>%
-  tab_spanner(
-    label = md("**orth. length**"), 
-    columns = c(minLength:sdLength)
-  ) %>%
-  cols_label(starts_with("min") ~ "min", 
-             starts_with("max") ~ "max", 
-             starts_with("mean") ~ "mean", 
-             starts_with("sd") ~ "SD")
-
-stimuli %>% 
-  filter(condition != 'nw-w_foil', experiment == 'two') %>%
-  group_by(grouping, condition) %>%
-  summarise(N = n(),
-            minLogFreq= min(Log_Freq_HAL, na.rm = T), maxLogFreq=max(Log_Freq_HAL, na.rm = T),
-            meanLogFreq = mean(Log_Freq_HAL, na.rm = T), sdLogFreq = sd(Log_Freq_HAL, na.rm = T),
-            minLength = min(Length, na.rm = T), maxLength = max(Length, na.rm = T),
-            meanLength = mean(Length, na.rm = T), sdLength=sd(Length, na.rm = T)
-            ) %>% 
-  mutate_if(is.numeric, round, 2) %>% 
-  mutate(grouping = ifelse(grouping=="stem-standard", md("*group 2A*"), md("*group 2B*"))) %>%
-  mutate(condition = ifelse(condition=="semantic-2", "semantic", condition)) %>%
-  gt(groupname_col = "grouping", process_md = T) %>%
-  tab_spanner(
-    label = md("**log HAL**"), 
-    columns = c(minLogFreq:sdLogFreq)
-  ) %>%
-  tab_spanner(
-    label = md("**orth. length**"), 
-    columns = c(minLength:sdLength)
-  ) %>%
-  cols_label(starts_with("min") ~ "min", 
-             starts_with("max") ~ "max", 
-             starts_with("mean") ~ "mean", 
-             starts_with("sd") ~ "SD")
-  
-```
 
 Three-hundred and eighty-four non-words were randomly selected from the ELP database as well, all matching in length with the word stimuli (*F*s < 2). Half of these non-words were randomly selected to be presented as targets, of which twenty-four were preceded by an identity prime. The other half was instead used as unrelated primes.
 
@@ -187,68 +112,13 @@ After being recruited, participants were asked to click on a link which redirect
 Subjects were also given 6 breaks throughout the experiment. When the experiment was over, the participants were then redirected to Prolific in order to validate their submission. The median time to finish the experiment was about 15 minutes. Each participant was paid with the standard rate of USD 9.5/hour.
 
 
-# Data analysis {#sec-exp1-analysis}
-
-```{r open dataset experiment 1}
-#| echo: false
-# load the raw data dataframe
-
-# load the raw data dataframe
-data_folder <- "data"
-rawdata_filename <- "affix-priming_raw_data.csv"
-
-## 02. check if the rawdata file exists. if not, download it from OSF.
-#if (!file.exists(here(data_folder, rawdata_filename))) {
-#  osf_retrieve_file("ej8dh") |> 
-#    osf_download(path = here(data_folder),
-#                 conflicts = "overwrite") 
-#}
-
-## 03. read the data into R.
-rawdata <- here(data_folder, rawdata_filename) |>
-  read.csv(na = c("", "NA")) %>%
-  mutate(primeTime = primeDuration - maskDuration) # calculating the actual SOA
-
-exp_info <- list()
-exp_info$intended_prime_duration <- 33
-exp_info$prime_dur_lb <- 25
-exp_info$prime_dur_ub <- 60
-exp_info$rt_lb <- 200
-exp_info$rt_ub <- 1800
-exp_info$n_recruited <- rawdata$Rec_Session_Id |>
-  unique() |>
-  length()
-
-exp_rawdata <- rawdata %>%
-  filter(!is.na(TimeMeasure_Mean) & !is.na(TimeMeasure_Std) & !is.na(primeDuration) & !is.na(responseError))
-            
-exp_info$summary <- with(
-  transform(exp_rawdata,
-    RT_inrange = ifelse(RT >= exp_info$rt_lb & RT <= exp_info$rt_ub, 1, 0),
-    Prime_inrange = ifelse((primeDuration - maskDuration) >= exp_info$prime_dur_lb &
-                             (primeDuration - maskDuration) <= exp_info$prime_dur_ub, 1, 0)),
-  {
-    data.frame(aggregate(Start_Time_Local ~ Rec_Session_Id + Crowdsourcing_SubjId, data=exp_rawdata, unique),
-               aggregate(End_Time_Local ~ Rec_Session_Id  + Crowdsourcing_SubjId, data=exp_rawdata, unique),
-               aggregate(cbind(experiment, list, SelectedGender, SelectedAge, TimeMeasure_Mean, TimeMeasure_Std) ~ Rec_Session_Id  + Crowdsourcing_SubjId, data=exp_rawdata, unique),
-               aggregate(cbind(responseError, RT_inrange, Prime_inrange) ~ Rec_Session_Id  + Crowdsourcing_SubjId, data=exp_rawdata, mean)
-    )
-  }
-)
-
-exp_info$summary <- exp_info$summary[, -grep("Rec_Session_Id.|Crowdsourcing_SubjId.", colnames(exp_info$summary))] # remove all extra aggregating columns (subj ID)
-
-exp_info$summary$Duration <- interval(ymd_hms(exp_info$summary$Start_Time_Local), 
-                                             ymd_hms(exp_info$summary$End_Time_Local)) |>
-                                      lapply(function(interval_value) {interval_value/dminutes(1)}) |> 
-                                           unlist()
-```
+# Data analysis {#sec-analysis}
 
 Analysis scripts and an abridged version of the data collected can be
 found on OSF (<#########>). We performed three different
 steps of analyses (in sequential order), with the goal of gaining a
 thorough understanding of the data collected
-(`r format(nrow(rawData), big.mark=",", scientific=F)` observations in
+(`N` observations in
 total). The first step of analyses is the novel analysis step that is
 usually not included in the typical analysis pipeline for RT-based data,
 and looks at at the distribution of the actual duration of prime words
@@ -260,38 +130,15 @@ subject performance and RT distribution, respectively.
 
 ### Subject and item performance {#sec-analysis-performance}
 
-```{r}
-#| label: exp_performance
-#| message: false
-#| error: false
-#| warning: false
-
-exp_step1_goodsubj <- exp_info$summary |>
-  subset(responseError <= .3) 
-
-exp_step1_subj_remain <- exp_step1_goodsubj |> nrow()
-
-exp_step1_item.err <- exp_rawdata %>% group_by(condition_rec, target_rec) %>%
-  summarise(word.percent=mean(responseError)*100) %>% 
-  filter(word.percent > 30)
-
-exp_subj_filter_1 <- exp_step1_goodsubj$Rec_Session_Id
-exp_item_filter_1 <- exp_step1_item.err$target_rec
-
-exp_data_step1 <- exp_rawdata |>
-  subset(Rec_Session_Id %in% exp_subj_filter_1 & 
-         !target_rec %in% exp_item_filter_1)
-```
-
 During the experiment, the duration of presentation of the prime word
 was recorded online for every trial, as an additional measure necessary
 for a thorough assessment of the stimulus delivery engine in terms of
 reliability and variance of the duration of the presentation of the
 stimuli, and in particular of the prime. The distribution of the prime
-durations recorded in the experiment is shown in @tbl-primeTimeDistr
+durations recorded in the experiment is shown in XXXXX
 below. Both the mean (mean =
-`r round(summary.primeTime$meanPrimeTime, 2)`) and the median (median =
-`r median(rawData$primeTime)`) of the prime duration were slightly
+`N`) and the median (median =
+`N`) of the prime duration were slightly
 greater than the target prime duration (33 ms). This distribution
 suggests that, while overall the web engine presented most trials at the
 preset duration, it was not as precise and accurate as a local engine.
@@ -308,10 +155,10 @@ duration of 33 ms. Taking a standard 60-Hz monitor as reference, the
 lower and the upper bounds was set at half of a full refresh cycle
 (i.e., 8 ms) and at 60 ms respectively, so to keep trials that would not
 fall below or above the subliminal threshold. Out of the
-`r format(nrow(rawData), big.mark=",", scientific=F)` observations
-collected, only `r round(primeTimePercentOut, 2)`% of the trials were
+`N` observations
+collected, only `N`% of the trials were
 out of the range selected, the great majority of which
-(`r round(primeTimePercentAbove*100, 2)`%) were above the range set. We
+(`N`%) were above the range set. We
 take this as further corroborating the argument that Labvanced is
 capable to reliably present stimuli at short durations. However, by way
 of ensuring the quality of the data collected and therefore reliability
@@ -321,53 +168,23 @@ preliminary step in the analysis pipeline is recommended.
 
 ### Step 2: prime durations
 
-```{r}
-#| label: exp_prime-durations
-#| message: false
-#| warning: false
-#| error: false
-  
-exp_summary.primeTime <- exp_rawdata %>% 
-  summarise(meanPrimeTime = round(mean(primeTime), 2), 
-            sdPrimeTime = round(sd(primeTime), 2))
-
-exp_primeTimeRangeSummary <- exp_rawdata %>% 
-  group_by(primeTime) %>%
-  mutate(range = ifelse(primeTime < exp_info$prime_dur_lb, "below", 
-                        ifelse(primeTime > exp_info$prime_dur_ub, "above",
-                               "in range"))) %>% 
-  group_by(range) %>% tally() %>% ungroup() %>%
-  mutate(range.percent = round((n*100)/nrow(exp_rawdata),2))
-
-exp_data_step2 <- exp_data_step1  |>
-  subset(primeTime >= exp_info$prime_dur_lb & primeTime <= exp_info$prime_dur_ub)
-
-exp_step2_subj_remain <- exp_data_step2$Rec_Session_Id |>
-  unique() |>
-  length()
-
-exp_step2_trials_remain <- nrow(exp_data_step2)
-
-```
-
-
 Non-word trials were excluded from analysis a priori, as not strictly
 relevant to the specific question being asked in the experiment. The
-by-item word error rate revealed that `r length(wordsToRemove)` words
+by-item word error rate revealed that `N` words
 had an error rate higher than 30%, and they all belonged to the
 low-frequency condition. The high number of words with a high error rate
-was likely due to their low frequency (see @sec-exp-methods-materials
+was likely due to their low frequency (see XXXXXX
 for further information), so we decided to remove the low-frequency
 condition altogether, since removing the whole set of high-error words
-(roughly corresponding to `r round(length(wordsToRemove)*100/50, 2)`% of
+(roughly corresponding to `N`% of
 the total items of the low-frequency conditions) would have drastically
 decreased of the number of observations for the low-frequency condition,
 thus impinging on the reliability of the estimates of that condition.
 After removing the entire low-frequency condition, we re-calculated word
-error rates. only `r length(wordsToRemoveCut)` mid-frequency words
-(*`r tolower(wordsToRemoveCut)`*) had an error rate higher than 30%, and
+error rates. only `N` mid-frequency words
+(*`N`*) had an error rate higher than 30%, and
 were removed from analysis. We then calculated the subject error rates.
-Only `r length(sjToRemoveCut)` subject was removed because of their
+Only `N` subject was removed because of their
 overall error score was higher than 30%. After this cut, we also
 calculated $d′$ [@GreenSwets1966] to assess participants' attentiveness
 to the lexical decision task. The measure $d'$ is usually calculated as
@@ -378,153 +195,33 @@ zero generally indicates a lack of attentiveness/awareness of the
 participant onto the stimulus. The distribution of $d'$ across
 participants was never below 1.5, which suggested that all participants
 were actively engaging with the task. Finally,
-`r length(fewTrials.Subjects)` subjects were removed because the number
+`N` subjects were removed because the number
 of trials was less than half of the trials being presented within the
 same condition (i.e., 25). This was an additional cautionary step to
 avoid inaccurate estimates. After removing the incorrect responses, a
-total of `r format(nrow(good.subjects), big.mark=",", scientific=F)`
-observations and `r sampleSizeAfterPerformance` participants were
+total of `N`
+observations and `N` participants were
 included in further analyses.
 
 ### Step 3: RT distribution
 
-```{r}
-#| label: exp_RT-outliers
-#| message: false
-#| error: false
-#| warning: false
-
-# RT outliers 
-exp_data_step3 <- exp_data_step2 |> 
-  subset(RT >= exp_info$rt_lb & RT <= exp_info$rt_ub)
-
-exp_step3_subj_remain <- exp_data_step3$Rec_Session_Id |>
-  unique() |>
-  length()
-
-exp_step3_trials_remain <- nrow(exp_data_step3)
-
-# error trial removal
-
-exp_data_step3b <- exp_data_step3  |>
-  subset(responseError == 0)
-
-exp_step3b_subj_remain <- exp_data_step3b$Rec_Session_Id |>
-  unique() |>
-  length()
-
-exp_step3b_trials_remain <- nrow(exp_data_step3b)
-
-# remove subjects with less than 6 trials in at least one condition*primetype combination (half of the total number of items per combination)
-rt_data_labels <- c("Rec_Session_Id", "condition_rec", "primetype_rec", "RT")
-
-exp_subj_filter_2 <- exp_data_step3b[, rt_data_labels] |>
-  aggregate(RT ~ ., FUN = length, drop = FALSE) |>
-  subset(RT < 6, select = Rec_Session_Id) |>
-  unique() |>
-  unlist()
-
-exp_data_final <- exp_data_step3b |>
-  subset(!(Rec_Session_Id %in% exp_subj_filter_2))
-
-exp_final_subj_remain <- exp_data_final$Rec_Session_Id |>
-  unique() |> 
-  length()
-  
-exp_final_trials_remain <- nrow(exp_data_final)
-
-```
-
 Finally, individual trials were excluded if the relative RT was below
-200 ms and 1800 ms. `r goodsubjects.rtStatsOverall$sumRTOut`
+200 ms and 1800 ms. `N`
 observations were excluded at this stage of analysis
-(`r round(goodsubjects.rtStatsOverall$percentRTOut, 2)`% of the
+(`N`% of the
 dataset), which led to a total of
-`r format(nrow(goodsubjects), big.mark=",", scientific=F)` observations
+`N` observations
 that were actually included in the statistical analysis below.
 
 ## Results {#sec-exp-results}
-
-```{r priming analysis}
-#| echo: false
-#| message: false
-#| error: false
-#| warning: false
-#| 
-## calculating correlations
-corDF <- goodsubjects_primingReady %>% 
-  group_by(experiment, Crowdsourcing_SubjId, condition_rec, primetype_rec) %>%
-  dplyr::summarise(meanRT=mean(RT)) %>%
-  dplyr::select(Crowdsourcing_SubjId, condition_rec, primetype_rec, meanRT) %>% 
-  pivot_wider(names_from='primetype_rec', values_from=c('meanRT'))  %>%
-  group_by(condition_rec) %>%
-  dplyr::summarise(cor=cor(unrelated, related, use='complete.obs'))
-
-sdDF <- goodsubjects_primingReady %>% group_by(experiment, Crowdsourcing_SubjId, condition_rec, primetype_rec) %>%
-  dplyr::summarise(meanRT=mean(RT), sdRT=sd(RT)) %>%
-  dplyr::select(Crowdsourcing_SubjId, condition_rec, primetype_rec, meanRT, sdRT) %>%
-  group_by(condition_rec) %>%
-  dplyr::summarise(grandmeanRT=mean(meanRT), sdgrandRT=sd(meanRT))
-  
-# plot distributions of the sd across subjects (conflating condition*primetype and not)
-
-grandDF <- merge(corDF, sdDF, by='condition_rec')
-
-# priming calculations 
-meansSubj <- goodsubjects_primingReady %>% group_by(experiment, Crowdsourcing_SubjId, condition_rec, primetype_rec) %>%
-  dplyr::summarise(meanRT = mean(RT)) 
-
-primingSubj <- meansSubj %>% pivot_wider(names_from=primetype_rec, values_from=meanRT) %>%
-  mutate(priming = unrelated-related) 
-
-effsize.means <- primingSubj %>% group_by(experiment, condition_rec) %>%
-  dplyr::summarise(sd=sd(priming), ES=round(mean(priming)/sd, 2))
-
-primingEffects <- primingSubj %>% dplyr::select(-priming) %>%
-  pivot_longer(related:unrelated, names_to="primetype", values_to="meanRT") %>%
-  group_by(condition_rec, primetype) %>%
-  dplyr::summarise(mean=mean(meanRT, na.rm=T)) %>%
-  pivot_wider(names_from=primetype, values_from=mean) %>% mutate(priming = unrelated-related)
-
-primingEffects2 <- primingSubj %>% group_by(experiment, condition_rec) %>%
-  dplyr::summarise(grandPriming = mean(priming, na.rm=T), se = sd(priming, na.rm=T)/sqrt(n()), ci=(qt(0.975, n()-1)*se))
-
-primingEffects2 <- merge(primingEffects2, effsize.means, by=c('experiment', 'condition_rec'))
-primingEffects2 <- merge(primingEffects2, primingEffects, by='condition_rec')
-primingEffects2 <- merge(primingEffects2, grandDF, by=c('condition_rec'))
-
-
-primingEffects2$condition_rec <- factor(primingEffects2$condition_rec, 
-                                        levels=c("identity", "stem_prefix", "stem_suffix", "prefixed", "suffixed", 
-                                                 "stem_pfx", "stem_sfx", 
-                                                 "from_pfx", "from_sfx", 
-                                                 "orthographic", "semantic", "nw-nw_id"
-                                                 ))
-
-primingEffects2$condition_ex <- primingEffects2$condition_rec
-primingEffects2$condition_ex <- as.factor(primingEffects2$condition_ex)
-levels(primingEffects2$condition_ex) <- c("scorpion-SCORPION", "disuse-MISUSE", "lovable-LOVELESS", "unfair-UNCOMMON", "jogger-FREEZER",
-                                           "unsafe-SAFE", "playable-PLAY",
-                                           "fair-COMMON", "jog-FREEZE",
-                                           "bounds-BOUNCE", "captive-PRISONER", 
-                                           "plealth-PLEALTH")
-
-primingEffects2$experiment <- as.factor(primingEffects2$experiment)
-levels(primingEffects2$experiment) <- c("1", "2")
-
-primingEffects2$color <- ifelse(primingEffects2$condition_rec %in% c("prefixed", "suffixed"), "affix",
-                                ifelse(startsWith(as.character(primingEffects2$condition_rec), "stem"), "stem", as.character(primingEffects2$condition_rec)))
-
-#primingEffects2 <- merge(primingEffects2, stats, by=c('experiment', 'condition_rec'))
-```
 
 For each frequency bin, priming effects were calculated for each subject
 by subtracting the by-subject mean RT to the related sub-condition from
 the by-subject mean RT to the unrelated sub-condition. Standardized
 effect sizes (i.e., Cohen's *d*) were then calculated for each
 condition. Finally, by-subject mean priming effects were grand-averaged
-across subjects for each condition. @fig-primingPlot and
-@tbl-primingResults below report the descriptive statistics of the
+across subjects for each condition. XXXXX and
+XXXXX below report the descriptive statistics of the
 experiment. Both word conditions show non-null priming effects. The
 priming magnitudes (and the relative standardize effect sizes) are
 different in terms of magnitude and sign. The high and mid-frequency
@@ -532,518 +229,18 @@ word conditions show similar positive effects, with the mid-frequency
 priming effects being 6-ms greater that the high-frequency priming
 effects.
 
-```{r priming plotting}
-#| echo: false
-#| message: false
-#| error: false
-#| warning: false
-#| label: fig-primingPlot
-#| fig-cap: "Experiment 1. Barplot of the priming effects (error bars represent one standard error in either direction)"
-
-experiment.list <- c("1" = "Experiment 1 (N=3,236)", "2" = "Experiment 2 (N=3,293)")
-
-ggplot(primingEffects2, aes(x=condition_ex, y=grandPriming, color=color, fill=color))+
-  facet_wrap(~experiment, scales='free_x', ncol=1, labeller=as_labeller(experiment.list))+
-  geom_bar(stat="identity")+
-  geom_errorbar(aes(ymin=grandPriming-se, ymax=grandPriming+se), width=.3, color="black")+
-  #scale_y_continuous(breaks=seq(-25, 45, 15), limits=c(-25, 45), labels=seq(-25, 45, 15))+
-  scale_color_manual(values=c("identity"="#8da0cb", "affix" = "#FC8D62", "stem" = "#66C2A5"))+
-  scale_fill_manual(values=c("identity"="#8da0cb", "affix" = "#FC8D62", "stem" = "#66C2A5"))+
-  theme_bw()+
-  theme(#axis.line = element_line(colour = "black"),
-    panel.grid.major = element_blank(),
-    panel.grid.minor = element_blank(), 
-    panel.border = element_blank(),
-    legend.position="none",
-    axis.title = element_text(size=30),
-    axis.text = element_text(size=30),
-    strip.text.x = element_text(size = 30),
-    axis.text.x = element_text(size=20),
-    plot.title = element_text(size = 30),
-    panel.background = element_rect(fill=rgb(240, 240, 240, max=255), color=rgb(240, 240, 240, max=255)),
-    plot.background = element_rect(fill=rgb(240, 240, 240, max=255), color=rgb(240, 240, 240, max=255))
-    #panel.background = element_blank() 
-  ) +
-  # geom_text(aes(x=condition_ex, y=grandPriming+se+5, label = paste0("ES = ", round(grandPriming,digits=0), 
-  #                                                                   " (", ES, ")")), size=10)+
-  # geom_text(aes(x=condition_ex, y=grandPriming+se+2, label = paste0("p ", p.PN)), size=10)+
-  #ggtitle("Experiment 1")+
-  xlab("condition")+
-  ylab("priming effects (ms)")
-
-```
-
-```{r priming results}
-#| echo: false
-#| message: false
-#| error: false
-#| warning: false
-#| tbl-cap: "Experiment 1. Estimates of the conditions: mean RTs, Pearson's _r_ between the related and unrelated conditions, and standard deviation (SD). Estimates of the priming effects: priming size (MOP), standard deviation of priming (SD~p~), and Cohen's _d_ effect size (ES)."
-#| label: tbl-primingResults
-#| tbl-pos: 'h'
-
-primingEffects2 %>% dplyr::select(-grandPriming, -se, -ci, -grandmeanRT) %>% 
-  rename(condition = "condition_rec", sd ='sd', SD = 'sdgrandRT', MOP = "priming") %>% 
-  relocate(c(related, unrelated, cor, SD), .after=condition) %>%
-  relocate(c(MOP, sd, ES), .after=SD) #%>%
-  mutate(across(c(3:4, 6:8), round, 0), across(5, round, 2)) %>% 
-  select(c(-11:-16, -21)) %>%
-  gt()# %>%
-  # tab_spanner(
-  #   label = "primetype",
-  #   columns = c(3:4)
-  # ) %>%
-  # tab_spanner(
-  #   label = 'priming effects',
-  #   columns = c(7:9)
-  # ) %>%
-  # tab_spanner(
-  #   label = 't-test',
-  #   columns=c(11:13)
-  # ) %>%
-  # cols_label(
-  #   sd = md("SD~p~")
-  # )
-```
-
-```{r stat-results}
-#| echo: false
-#| message: false
-#| error: false
-#| warning: false
-
-options(scipen = 10)
-
-#t-test analyses
-stats <- meansSubj %>%
-  group_by(experiment, condition_rec) %>%
-  t_test(meanRT ~ primetype_rec, paired=T, detailed=T) %>% add_significance("p")
-
-stats <- merge(stats, primingEffects2, 
-               by=c("condition_rec", "experiment"))
-
-stats <- stats %>% select(-`.y.`:-n2) %>% select(-grandPriming:-sdgrandRT) %>%
-  relocate(condition_ex, .after=condition_rec)
-
-write.csv(stats, "affix-priming_stats.csv", row.names = F)
-
-#lmer analyses
-goodsubjects_primingReady %>% 
-  group_by(experiment, condition_rec) %>%
-  reframe(
-    lmer(RT ~ primetype_rec + (1 | Crowdsourcing_SubjId) + (1 | target_rec)) |> 
-      summary() |> 
-      (`$`)("coefficients") |> 
-      as_tibble(rownames = "term", .name_repair = janitor::make_clean_names)
-  ) %>% print(n=50)
-
-```
-
 We ran one *t*-test for each frequency condition, which revealed
 significant results for both conditions ($p<.001$). A separate paired
 *t*-test comparing the priming magnitudes of between the high-frequency
 and low-frequency conditions was instead non-significant ($p=$
-`r pairwiseComparisons$p[pairwiseComparisons$group1=='mid' & pairwiseComparisons$group2=='high']`).
+`N`).
 The statistic values, and *p*-values of both analyses are reported in
-@tbl-statsResults.
-
-```{r exp-stats-tbls}
-#| echo: false
-#| message: false
-#| error: false
-#| warning: false
-#| output: false
-#| label: tbl-statsResults
-#| tbl-cap: "Experiment 1. Summary of the statistical results."
-#| tbl-subcap: 
-#|  - "Priming analysis"
-#|  - "Planned comparison"
-#| layout-ncol: 2
-#| tbl-pos: 'h'
-#| ouotput: false
-
-stats %>% #dplyr::select(-.y.:-n2) %>% 
-  rename(frequency = "condition_rec", t='statistic') %>%
-  dplyr::mutate_if(is.numeric, funs(as.character(signif(., 3)))) %>%  gt() %>%
-  cols_label(
-    t = md("_t_"),
-    p = md("_p_"),
-  )
-
-```
-
-```{r pairwise comparisons}
-
-comparisons.exp1 <- list(c("identity", "stem_prefix"), c("identity", "stem_suffix"),
-                    c("stem_prefix", "prefixed"), c("stem_suffix", "suffixed"), 
-                    c("prefixed", "orthographic"), c("suffixed", "orthographic"))
-comparisons.exp2 <- list(c("identity", "stem_pfx"), c("identity", "stem_sfx"))
-
-primingSubj$condition_rec <- factor(primingSubj$condition_rec, 
-                                    levels = c("from_pfx", "from_sfx", "identity", "orthographic", "prefixed", "suffixed",
-                                               "semantic", "stem_pfx", "stem_prefix", "stem_sfx", "stem_suffix"))
-
-pairwise.exp1 <- primingSubj %>% group_by(experiment) %>%
-  filter(experiment == 1) %>%
-  pairwise_t_test(priming ~ condition_rec, comparisons=comparisons.exp1, detailed=T, p.adjust.method = "bonferroni")
-
-pairwise.exp2 <- primingSubj %>% group_by(experiment) %>%
-  filter(experiment == 2) %>%
-  pairwise_t_test(priming ~ condition_rec, comparisons=comparisons.exp2, detailed=T, p.adjust.method = "bonferroni")
-
-
-```
+XXXXXX.
 
 ## Discussion {#sec-exp1-discussion}
 
-The fair-COMMON condition primes -- why is that? we would expect it not
-to prime at all.
-
-One possibility is that the stems used in that condition have some
-residual unwanted semantic relationship (any orthographic relationship
-is excluded by visual inspection, since the words are visually very
-different from another and it is unlikely that minimal orthographic
-correspondences might have trigger priming effects)
-
-We will check the potential match of any of the pairs tested in that
-condition again the semantic priming database and the LSA as a way to
-tentatively explain this unexpected result.
-
-### Semantic priming database
-
-```{r}
-
-# first associate
-
-library(readxl)
-
-firstAssociate <- read_excel("/Users/rp3650/Library/CloudStorage/GoogleDrive-robpetrosino@gmail.com/My Drive/Academics/projects/morphology/morphological-decomposition/sub-projects/affix-priming/word-lists/semanticPriming_items.xls", sheet=2) %>% select(`prime_first associate`, TARGET)
-
-otherAssociate <- read_excel("/Users/rp3650/Library/CloudStorage/GoogleDrive-robpetrosino@gmail.com/My Drive/Academics/projects/morphology/morphological-decomposition/sub-projects/affix-priming/word-lists/semanticPriming_items.xls", sheet=4) %>% select(`other Assoc`, TARGET)
-
-associates <- merge(firstAssociate, otherAssociate, by="TARGET")
-associates <- associates %>% mutate(across(c(2:3), ~tolower(.))) %>%
-  mutate(target2=TARGET) %>% relocate(target2, .before=`other Assoc`) %>%
-  unite("assoc1", TARGET:`prime_first associate`, sep=", ") %>%
-  unite("assoc2", target2:`other Assoc`, sep=", ") %>% pull()
-
-word.list <- read.csv("/Users/rp3650/Library/CloudStorage/GoogleDrive-robpetrosino@gmail.com/My Drive/Academics/projects/morphology/morphological-decomposition/sub-projects/affix-priming/word-lists/affix-priming_conditions.csv")
-
-#pfx
-stems.from_pfx <- word.list %>% filter(condition=="stem-from-affix-conds") %>% 
-  select(word, type) %>% filter(row_number() <= 48)
-
-primes <- stems.from_pfx %>% filter(type=="prime") %>% select(word) %>% pull()
-targets <- stems.from_pfx %>% filter(type=='target') %>% select(word) %>% pull()
-type <- "pfx"
-stems.from_pfx.paired <- data.frame(primes, targets, type)
-stems.from_pfx.paired.c <- unite(stems.from_pfx.paired, col=pair, sep=", ") %>% pull()
-
-matches.pfx <- stems.from_pfx.paired.c[stems.from_pfx.paired.c %in% associates]
-
-#sfx
-stems.from_sfx <- word.list %>% filter(condition=="stem-from-affix-conds") %>% 
-  select(word, type) %>% filter(row_number() > 48)
-
-primes <- stems.from_sfx %>% filter(type=="prime") %>% select(word) %>% pull()
-targets <- stems.from_sfx %>% filter(type=='target') %>% select(word) %>% pull()
-type <- 'sfx'
-stems.from_sfx.paired <- data.frame(primes, targets, type)
-stems.from_sfx.paired.c <- unite(stems.from_sfx.paired, col=pair, sep=", ") %>% pull()
-
-matches.sfx <- stems.from_sfx.paired.c[stems.from_sfx.paired.c %in% associates]
-
-```
-
-### LSA
-
-```{r}
-
-library(stringr)
-
-#pfx
-#stems.from_pfx.paired.flat <- unlist(str_split(stems.from_pfx.paired.c, pattern = ", ")) 
-#stems.from_pfx.paired.flat <- stems.from_pfx.paired.flat[!stems.from_pfx.paired.flat %in% "pfx"]
-#write.table(stems.from_pfx.paired.flat, "stems.from_pfx.paired.flat.txt", row.names=F, col.names=F, quote=F, eol="\n\n")
-
-#sfx
-#stems.from_sfx.paired.flat <- unlist(str_split(stems.from_sfx.paired.c, pattern = ", "))
-#stems.from_sfx.paired.flat <- stems.from_sfx.paired.flat[!stems.from_sfx.paired.flat %in% "sfx"]
-#write.table(stems.from_sfx.paired.flat, "stems.from_sfx.paired.flat.txt", row.names=F, col.names=F, quote=F, eol="\n\n")
-#stems.from_afx <- rbind(stems.from_pfx.paired, stems.from_sfx.paired)
-
-#write.csv(stems.from_afx, "stems.from_afx.csv", row.names = F)
-
-stems.from_afx.lsa <- read.csv("stems.from_afx.csv")
-
-stems.from_afx.lsa %>% group_by(type) %>%
-  summarise(mean = mean(cos, na.rm=T), sd=sd(cos, na.rm=T))
-
-ggplot(stems.from_afx.lsa, aes(x=cos, color=type, fill=type))+
-  facet_wrap(~type) +
-  geom_histogram(bins = 10, alpha=0.2)
-
-var.test(cos ~ type, data=stems.from_afx.lsa)
-summary(lm(cos ~ type, data=stems.from_afx.lsa))
-
-lsa.words <- stems.from_afx.lsa %>%
-  filter(cos >= .3) %>% pull(targets) %>% map(., toupper) %>% unlist()
-
-```
-
-### Orthographic similarity
-
-```{r}
-
-# We will quantify orthographic similarity as levenshtein distance (also known as, edit distance)
-
-library(stringdist)
-
-stems.from_afx.lsa.lv <- stems.from_afx.lsa %>% 
-  mutate(edit.distance = stringdist(targets, primes, method='osa'))
-
-var.test(edit.distance ~ type, data=stems.from_afx.lsa.lv)
-t.test(edit.distance ~ type, data=stems.from_afx.lsa.lv, var.equal=F)
-
-ggplot(stems.from_afx.lsa.lv, aes(x=edit.distance, color=type, fill=type))+
-  facet_wrap(~type, scales='fixed') +
-  geom_histogram(bins = 10, alpha=0.2)
-
-```
-
-### Checking the word RT distributions
-
-```{r word priming analysis}
-
-word.priming <- goodsubjects_primingReady %>% 
-  group_by(experiment, target_rec, condition_rec, primetype_rec) %>% 
-  summarise(meanRT = mean(RT), sdRT = sd(RT)) %>%
-  pivot_wider(names_from=primetype_rec, values_from=c(meanRT, sdRT)) %>%
-  mutate(word.priming = meanRT_unrelated - meanRT_related)
-
-word.priming %>% 
-  group_by(experiment, condition_rec) %>%
-  summarise(mean = mean(word.priming))
-
-word.priming %>%
-  filter(experiment == 1) %>%
-  ggplot(aes(x=target_rec, y=word.priming)) + 
-  facet_wrap(~condition_rec, scales="free_x", ncol=1) +
-  geom_col()
-  
-word.priming %>%
-  filter(experiment == 2) %>% #filter(!target_rec %in% lsa.words) %>%
-  ggplot(aes(x=target_rec, y=word.priming)) + 
-  facet_wrap(~condition_rec, scales="free_x", ncol=1) +
-  geom_col()
-
-## stats leaving out the highest and lowest priming targets. 
-
-min.word.priming <- word.priming %>%
-  group_by(experiment, condition_rec) %>%
-  slice_min(word.priming, n=2) %>% pull(target_rec)
-
-max.word.priming <- word.priming %>%
-  group_by(experiment, condition_rec) %>%
-  slice_max(word.priming, n=2) %>% pull(target_rec)
-
-minmax.word <- c(min.word.priming, max.word.priming)
-
-goodsubjects_primingReady %>% 
-  filter(!target_rec %in% c(lsa.words)) %>%
-  group_by(experiment, Crowdsourcing_SubjId, condition_rec, primetype_rec) %>%
-  summarise(meanRT = mean(RT)) %>%
-  group_by(experiment, condition_rec) %>%
-  t_test(meanRT ~ primetype_rec, paired=T, detailed=T) %>% add_significance("p")
-  
-anova(lmer(meanRT ~ primetype_rec + (1|Crowdsourcing_SubjId), data=subset(meansSubj, condition_rec=='from_pfx')))
-
-```
-
-### Checking semantic associative strength as calculated by De Deyn et al 2019
-
-```{r dedeyn-analysis}
-
-dedeyn <- read_delim('strength.SWOW-EN.R123.csv', delim='\t', quote = '', escape_backslash = F, escape_double = F)
-#dedeyn2 <- read_csv("SWOW-EN.R100.csv")
-
-stems.from_afx.lsa.lv.dedeyn <- left_join(stems.from_afx.lsa.lv, dedeyn, by=join_by(primes==cue, targets==response))
-
-```
-
-```{r}
-
-word.vectors <- read_delim("EN-wform.w.2.ppmi.txt", delim='\n', col_names=c("X1")) %>%
-  separate_wider_delim(X1, " ", names_repair="minimal", too_few="align_start", too_many="merge", names=c("words", "ppmi"))
-
-
-
-```
 
 # General discussion {#sec-discussion}
-
-The repetition priming response has been one of the most used
-psycholinguistic measures from which to infer the mechanisms
-underpinning word recognition. One possible interpretation of these
-effects involves the recruitment of the episodic representations of
-words. By definition, this kind of representations are influenced by
-contextual properties, such as modality of presentation (i.e., visual
-and/or auditory), stimulus familiarity, or task (e.g., lexical decision,
-old-new classification, naming), and therefore may not be directly
-linked to the corresponding lexical representations, which are instead
-commonly considered to be more static and less labile. This is the main
-tenet of memory recruitment models [for a review, @MassonBodner2003],
-which contend that the actual sources of repetition priming and
-frequency attenuation effects (or the lack thereof) cannot be
-ascertained, because there is no way to tease apart the properties
-produced by lexical access from the properties produced by the episodic
-memory. An alternative interpretation contends instead that the
-dissociation between the lexical and the episodic components within the
-priming response is possible. This is the main tenet of the
-entry-opening model proposed by \@-ForsterDavis1984. In their seminal
-paper, the authors hypothesized that the episodic component may be
-factored out by inhibiting the formation of the episodic representation
-of the stimulus, which is assumed to occur after conscious perception.
-This was achieved by masking the prime stimulus so to make it
-consciously undetectable to participants (i.e., $SOA < 60 ms$). The
-results showed that the repetition priming response would always obtain,
-but the FAE would disappear only when the prime was masked. The
-inspiration of the present study sparked from an uncontroversial
-observation: although since then most follow-up studies has confirmed
-the asymmetry between masked and non-masked FAEs, a small subset of them
-did not, and reported elicitation of the FAE in both designs
-(@tbl-litReview). We claimed that such contradictory results might have
-stemmed from two sources. First, all of previous studies used the
-outdated @KuceraFrancis1967's word frequency database. As a consequence,
-any frequency-based binning procedure based on that database may be just
-unreliable [@BrysbaertNew2009]. Second, the relevant studies are
-generally underpowered, especially when interaction effects are
-considered [@BrysbaertStevens2018], and ultimately might lead to Type-II
-error rate inflation. This study aimed at tackling both issues by
-running two different experiments. To address the frequency database
-issue, we prepared our materials by relying on two databases: HAL and
-SUBTLEX$_{US}$. The power issue was more complex to sort out. In
-practice, the only way to increase statistical power is to collect a
-sample large enough to reach an acceptable statistical power [i.e.,
-\>80%, as suggested by @Cohen1992]. However, detecting small effects may
-require a sample size likely in the thousands of participants, which may
-be impractical and time-consuming in a typical in-person data collection
-setting. One flexible and fast solution is to take advantage of modern
-online stimulus delivery programs, which directly run experiments on
-browsers and seem to provide comparably high quality data. Experiment 1
-aimed to assess the empirical reliability of *Labvanced*, a new stimulus
-delivery online application that provides researchers with an intuitive
-GUI, and therefore does not require any prior programming knowledge
-(such as javascript). In experiment 1, we recruited a sizable sample
-online ($N=300$), and elicited the repetition masked priming response to
-low-, mid-, and high-frequency words with the prime SOA set at 33 ms. In
-general, our results showed that online data collection may be reliably
-used for priming elicitation, modulo an additional pre-processing step
-to screen for accidental and uncontrollable fluctuations in the duration
-of the prime presentation. Building on the validating results of
-experiment 1, we then designed experiment 2 so to address the two issues
-mentioned above at the same time. First, we constructed two word
-frequency conditions on the basis of the SUBTLEX$_{US}$ word frequency
-database. Second, we ran an extensive power simulation analysis which
-took into account a number of parameters: sample size, standard
-deviation, correlation between priming conditions (related vs.
-unrelated), and raw interaction effect size. We found that, with the
-right sample size ($N=873$), both main effects of priming and frequency,
-and their interaction were highly significant. In particular, the size
-of the masked priming response to low-frequency words was about twice
-the masked priming response to high-frequency words, similarly to what
-is reported in the non-masked design.
-
-Taken together, the results of the experiments reported here have
-important methodological and theoretical implications for the future
-research on priming and, more generally, visual word recognition. The
-methodological implications come from the extensive analysis we
-performed on the data we collected online (especially for experiment 1).
-We have shown that online data collection may possibly provide reliable
-data from large sample sizes--something that was not imaginable until a
-few years ago. Large-scale experimentation also provides a fast and
-effective solution to the long-standing issue of low statistical
-power--an issue that seems quite pervasive in psychology and the related
-fields. Of course, a potentially limitless source of participants
-entails a substantial increase of funding costs. These costs may
-sky-rocket since the available online programs are not able to fully
-provide the precision standards especially required for experimental
-designs such as masked priming, in which time precision and accuracy are
-essential. As the only viable solution at the present time, we removed
-all trials with a prime duration that would fall beyond the subliminal
-processing range (25-60 ms), while doubling the participants as a
-counteraction to still reach the target sample size. We anticipate a
-gradual resolution of the limitations in terms of timing performance and
-reliability of online programs may be finally reached, as technology
-progresses towards more and more powerful machines.
-
-The theoretical implications of the present study primarily come from
-the significant frequency attenuation effect reported in experiment 2.
-While recruitment memory models make this exact prediction, the
-entry-opening model cannot account for these results. According to this
-model, when the visual stimulus is presented, lexical entries are
-assigned to specific bins based on orthographic similarity. In the first
-stage (fast search stage), a fast search, frequency-ordered procedure
-goes through the entries within a given bin, and compares each of them
-with the the input stimulus, thus assigning to each entry a goodness of
-fit score. This comparison is very fast and crude, and sorts entries
-into (a) perfect (i.e., no difference is detected between the input and
-the entry), (b) close (i.e., small differences are detected), and (c)
-irrelevant matches (i.e., substantial difference are detected). Any
-entry of type (a) or (b) is opened, so that the entry can be further
-analyzed and compared to the input in the second stage (verification
-stage). In the masked environment, the short duration of the prime
-prevents conscious perception of the prime, thus blocking the processing
-of the prime before the evaluation stage can start; nevertheless, the
-entry of the prime word is opened as a result of the fast search stage,
-and speeds up the opening procedure of the entry of the target word
-*before* it is actually presented. However, priming effects arise only
-*after* the correct entry for the target has been located, so word
-frequency should not impinge on the priming response itself, rather
-should only affect the activation of the episodic representation of the
-word due to its conscious perception as prime stimulus
-[@ForsterEtal2003]. Our results contradict this prediction, and instead
-suggest a frequency-based mechanism occurring in the fast search stage.
-A potential mechanism in this direction was already hinted at by
-@ForsterDavis1984 themselves, and consists of a procedure, whereby
-during the fast search stage (p. 695), the entry of a prime word is
-promoted to the top position of the search list. As a consequence,
-low-frequency words (which are fairly low in the search list) will
-benefit from such promotion procedure more than high-frequency words
-(which are instead already in higher positions), thus ultimately giving
-rise to the FAE.
-
-Besides the model-specific implications, the results of this study more
-generally suggest that the dissociation between the masked and
-non-masked priming responses might be more nuanced than commonly thought
-of. On the one hand, the two responses may still retain some mechanistic
-difference, since a much larger sample size was necessary to elicit
-masked FAEs as compared to the sample size necessary for non-masked
-FAEs. To illustrate, the sample size recruited for in
-@ScarboroughEtal1977 for the relevant non-masked experiment (exp. 2) is
-about `r round(24*100/(sampleSizeActual+sampleSizeActual_exp2))`% of the
-sample recruited for the experiments reported above. A similar size was
-also recruited for the non-masked replications reported in many
-follow-up papers [e.g., @FosterDavis1984, exp. 4]. This might suggest
-that, while episodic memory is still impinging on the priming response
-even at a very short SOA, its influence is reduced and a larger sample
-size is needed to detect it. In addition, the non-word priming response,
-which has been reported in the non-masked design only in most study
-[e.g., @Forster1999; @Forster2003; but see @MassonBodner2003], is
-another promising topic that seems potentially worthy of a thorough
-investigation and might shed more light on the issue. On the other hand,
-our study factually weakens the claim that masked priming effects are
-completely devoid of episodic influences, and contributes to at least
-reopen the discussion on the issue [along similar lines of
-@MassonBodner2003]. We anticipate that the consequences of these results
-may affect the related areas of research--in particular, morphological
-processing, which have since extensively used the masked priming design.
-The results ultimately seem to indicate that the argued divide between
-early stages [involving "automatic" and "pre-lexical" processing such as
-orthographic and "morpho-orthographic" information; @RastleEtal2004] and
-later stages [involving instead access to purely lexical information
-such as word frequency and semantic information; @RastleEtal2000] of
-word processing may not be as clear-cut as believed until now.
 
 # References {.unnumbered}
 
@@ -1054,71 +251,7 @@ word processing may not be as clear-cut as believed until now.
 
 # Wordlists {.unnumbered}
 
-```{r}
-#| echo: false
-#| message: false
-#| error: false
-#| warning: false
-
-library(readxl)
-exp1.wordlist <- read_excel("frequency-effects_experiment1/frequency-effects_experiment1_word-lists/frequency-effects_experiment1_word-lists.xlsx", skip=1)[,-c(1,4,7)]
-exp2.wordlist <- read_excel("frequency-effects_experiment2/frequency-effects_experiment2_word-lists/frequency-effects_experiment2_word-lists.xlsx", skip=1)[,-c(1,4:5)]
-```
 
 ### Experiment 1 {.unnumbered}
 
-```{r}
-#| echo: false
-#| message: false
-#| warning: false
-#| error: false 
-
-colnames(exp1.wordlist) <- c("low_unrel. word", "low_word",
-                             "mid_unrel. word", "mid_word",
-                             "high_unrel. word", "high_word")
-
-type <- c("unrel. word", "word")
-existing_cols <- c(paste0("low_", type),
-                   paste0("mid_", type),
-                   paste0("high_", type))
-named_cols <- set_names(rep(type,3), existing_cols)
-
-exp1.wordlist %>% gt() %>% 
-  tab_spanner(
-    label = md('**low frequency**'),
-    columns = starts_with("low_")) %>%
-  tab_spanner(
-    label = md('**mid frequency**'),
-    columns = starts_with("mid_")) %>%
-  tab_spanner(
-    label = md('**high frequency**'),
-    columns = starts_with("high_")) %>%
-  cols_label(.list=named_cols)
-  
-```
-
 ### Experiment 2 {.unnumbered}
-
-```{r}
-#| echo: false
-#| message: false
-#| warning: false
-#| error: false 
-
-colnames(exp2.wordlist) <- c("low_unrel. word", "low_word",
-                             "high_unrel. word", "high_word")
-
-existing_cols <- c(paste0("low_", type),
-                   paste0("high_", type))
-named_cols <- set_names(rep(type,2), existing_cols)
-
-exp2.wordlist %>% gt() %>% 
-  tab_spanner(
-    label = md('**low frequency**'),
-    columns = starts_with("low_")) %>%
-  tab_spanner(
-    label = md('**high frequency**'),
-    columns = starts_with("high_")) %>%
-  cols_label(.list=named_cols)
-  
-```

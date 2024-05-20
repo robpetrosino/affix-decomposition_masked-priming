@@ -1,8 +1,12 @@
 ---
 title: "Script B: Data analysis and results"
 format: html
+message: false
+error: false
+warning: false
 ---
-## Libraries
+
+# Libraries
 
 ```{r libraries}
 #| echo: false
@@ -19,7 +23,7 @@ library(emmeans)
 library(vcmeta)
 ```
 
-## Materials
+# Materials
 
 ```{r}
 #| echo: false
@@ -142,7 +146,9 @@ exp_info$summary$Duration <- interval(ymd_hms(exp_info$summary$Start_Time_Local)
                                            unlist()
 ```
 
-### Step 1: subject and item performance 
+# Analysis
+
+## Step 1: subject and item performance 
 
 ```{r}
 #| label: exp_performance
@@ -167,7 +173,7 @@ exp_data_step1 <- exp_rawdata |>
          !target_rec %in% exp_item_filter_1)
 ```
 
-### Step 2: prime durations
+## Step 2: prime durations
 
 ```{r}
 #| label: exp_prime-durations
@@ -198,7 +204,7 @@ exp_step2_trials_remain <- nrow(exp_data_step2)
 
 ```
 
-### Step 3: RT distribution
+## Step 3: RT distribution
 
 ```{r}
 #| label: exp_RT-outliers
@@ -241,7 +247,7 @@ exp_data_final <- exp_data_step3b |>
 
 ```
 
-## Results
+# Results
 
 ```{r}
 #| label: exp_results
@@ -378,7 +384,7 @@ pairwise.exp2 <- exp_mop_subj %>% group_by(experiment) %>%
 
 ```
 
-### Stats summary
+## Stats summary
 
 ```{r}
 #| message: false
@@ -448,9 +454,9 @@ exp_gdavg_mop %>%
 ```
 
 
-### Linear contrasts
+## Linear contrasts
 
-#### Experiment 1
+### Experiment 1
 
 ```{r}
 #| label: exp1 - linear contrasts (with emmeans)
@@ -527,7 +533,7 @@ contrasts.summary_exp1 %>%
 
 ```
 
-#### Experiment 2
+### Experiment 2
 
 ```{r}
 #| label: exp2 - linear contrasts (with emmeans)\
@@ -586,7 +592,7 @@ contrasts.summary_exp2 %>%
 
 ```
 
-#### Meta-analysis
+### Meta-analysis
 
 ```{r}
 #| label: meta-analysis_summary.table
@@ -811,6 +817,14 @@ meta.lc_summary <- cbind(meta.lc_summary, manual.diff.estimates) %>%
   relocate(all_of(c("term1", "term2", "diff")), .before = Estimate)
 
 meta.lc_summary %>% gt()
+
+
+meta.lc_summary %>% 
+  ggplot(aes(x=contrasts, y=Estimate))+
+  geom_col() + 
+  geom_errorbar(aes(ymin=Estimate-SE, ymax=Estimate+SE), width=0.2, linetype='dotted')+
+  geom_errorbar(aes(ymin=LL, ymax=UL), width=0.2)
+  
 
 ```
 
